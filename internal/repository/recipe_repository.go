@@ -22,7 +22,7 @@ func NewRecipeRepository(db *gorm.DB) RecipeRepository {
 
 func (r *recipeRepository) GetAll() ([]domain.Recipe, error) {
 	var recipes []domain.Recipe
-	err := r.DB.Find(&recipes).Error
+	err := r.DB.Order("id ASC").Find(&recipes).Error
 	return recipes, err
 }
 
@@ -31,5 +31,14 @@ func (r *recipeRepository) Create(recipe *domain.Recipe) error {
 }
 
 func (r *recipeRepository) Delete(id int) error {
-	return r.DB.Delete(&domain.Recipe{}, id).Error
+	result := r.DB.Delete(&domain.Recipe{}, id)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+
+	return nil
 }
