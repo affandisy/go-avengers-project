@@ -26,6 +26,9 @@ func (r *userRepository) Register(user *domain.User) error {
 func (r *userRepository) GetByEmail(email string) (*domain.User, error) {
 	var user domain.User
 	if err := r.DB.Where("email = ?", email).First(&user).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
 		return nil, err
 	}
 	return &user, nil
